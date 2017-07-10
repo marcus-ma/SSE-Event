@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<pre id="x">Initializing</pre>
+<script src="SSE.js"></script>
+<script>
+     url="SSE.php";
+     func=function (d) {
+         document.getElementById("x").innerHTML +="\n"+d.msg;
+     };
+     retry_time=2;
+
+    setTimeout(function () {
+        new SSE(url,func,retry_time);
+    },100);
+</script>
+</body>
+</html>

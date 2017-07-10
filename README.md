@@ -2,6 +2,7 @@
   全称Server-Sent Event(服务端推送事件)，一项基于HTML5的允许服务端向客户端推送新数据的技术。
 
 使用方法
+
     前端：
 （1）在要使用SSE功能的HTML5文件中引入封装好的SSE.js文件
     <script src="SSE.js"></script>
@@ -30,6 +31,7 @@
             new SSE(url,func,retry_time);
         },100);
     </script>
+
 
     后端
 （3）以PHP为例，服务端的SSE协议规格在SSE.php文件中已经做了详细说明，可以打开该文件进行参考

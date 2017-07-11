@@ -31,7 +31,7 @@ function SSE(url,func,retryTime) {
     //开启SSE函数
     function startEventSource() {
         es=new EventSource(url);
-        es.addEventListener("message", (e) => {
+        es.addEventListener("message", function (e) {
             processOneLine(e.data);
         },false);
         es.addEventListener("error",handleError,false);

@@ -27,10 +27,8 @@
          //声明重连的秒数变量，即几秒后再进行接收推送
          retry_time=2;
 
-        //设置倒计时，创建SSE实例，将变量传到参数中去
-        setTimeout(function () {
-            new SSE(url,func,retry_time);
-        },100);
+        //创建SSE实例，将变量传到参数中去
+        new SSE(url,func,retry_time);
     </script>
 
 

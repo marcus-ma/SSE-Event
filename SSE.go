@@ -12,11 +12,12 @@ const (
 	streamEventBufferSize = 10
 )
 
-
+type processHandler func()[]byte
 type StreamHandler struct {
 	requests map[*http.Request]chan []byte
 	mu       sync.RWMutex
 	done     chan struct{}
+	processHandler processHandler
 }
 
 func NewStreamHandler() *StreamHandler {
@@ -103,6 +104,22 @@ func (sh *StreamHandler) writeToRequests(eventBytes []byte) error {
 	return nil
 }
 
+
+func (sh *StreamHandler)SetProcessHandler(p processHandler){
+	sh.processHandler=p
+}
+func (sh *StreamHandler) loop() {
+	tick := time.Tick(1 * time.Second)
+	for {
+		select {
+		case <-tick:
+			sh.writeToRequests(sh.processHandler())
+		case <-sh.done:
+			return
+		}
+	}
+}
+
 // Start begins watching the in-memory circuit breakers for metrics
 func (sh *StreamHandler) Start() {
 	sh.requests = make(map[*http.Request]chan []byte)
@@ -117,32 +134,21 @@ func (sh *StreamHandler) Stop() {
 
 
 
-func (sh *StreamHandler) loop() {
-	tick := time.Tick(1 * time.Second)
-	for {
-		select {
-		case <-tick:
-			eventBytes, err := json.Marshal(struct {
-				Msg string `json:"msg"`
-			}{Msg: fmt.Sprintf("The server time is:%d",time.Now().Unix())})
-			if err!=nil {
-				fmt.Println(err)
-			}
-			sh.writeToRequests(eventBytes)
-		case <-sh.done:
-			return
-		}
-	}
-}
-
-
 
 
 func main() {
 
 	sh := NewStreamHandler()
+	sh.SetProcessHandler(func() []byte {
+		eventBytes, err := json.Marshal(struct {
+			Msg string `json:"msg"`
+		}{Msg: fmt.Sprintf("The server time is:%d",time.Now().Unix())})
+		if err!=nil {
+			fmt.Println(err)
+		}
+		return eventBytes
+	})
 	sh.Start()
-
 	fmt.Println("Open 8081")
 	http.ListenAndServe(":8081",sh)
 
